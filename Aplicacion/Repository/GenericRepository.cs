@@ -8,7 +8,7 @@ namespace Aplicacion.Repository;
 
 public abstract class  GenericRepository<T> where T : BaseEntity{
     private readonly DbAppContext _context;
-    private readonly DbSet<T> _Entities;
+    private readonly DbSet<T> _Entities;    
     public GenericRepository(DbAppContext context){
         _context = context;
         _Entities = _context.Set<T>();
@@ -30,7 +30,8 @@ public abstract class  GenericRepository<T> where T : BaseEntity{
     public virtual async IAsyncEnumerable<T> GetAllAsync(IParam param = null){        
         if (param !=null){
             await foreach (
-                var item in _Entities
+                var item in _Entities                
+                .Where(x => x.Nombre == param.Search)
                 .Skip((param.PageIndex - 1) * param.PageSize)
                 .Take(param.PageSize)
                 .AsAsyncEnumerable()
@@ -49,6 +50,7 @@ public abstract class  GenericRepository<T> where T : BaseEntity{
         if(param != null){           
             await foreach (
                 var item in _Entities
+                .Where(x => x.Nombre == param.Search)
                 .Where(expression)
                 .Skip((param.PageIndex - 1) * param.PageSize)
                 .Take(param.PageSize)
