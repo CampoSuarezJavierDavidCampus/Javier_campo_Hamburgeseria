@@ -4,12 +4,14 @@ using Dominio.Entities;
 
 namespace Dominio.Interfaces;
 using System.Linq.Expressions;
-public interface IGenericRepository<T> where T : BaseEntity
-{
-    Task<T> GetByIdAsync(string id);
-    Task<IEnumerable<T>> GetAllAsync();
-    IEnumerable<T> Find(Expression<Func<T, bool>> expression);
-    Task<(int totalRegistros, IEnumerable<T> registros)> GetAllAsync(int pageIndex, int pageSize, string search);
+using Dominio.Interfaces.Pager;
+
+public interface IGenericRepository<T> where T : BaseEntity{        
+    Task<T> FindFirst(Expression<Func<T, bool>> expression);
+    IAsyncEnumerable<T> GetAllAsync(Expression<Func<T, bool>> expression, IParam param = null );
+    IAsyncEnumerable<T> GetAllAsync(IParam param = null);
+    
+    Task<T> GetByIdAsync(int id);
     void Add(T entity);
     void AddRange(IEnumerable<T> entities);
     void Remove(T entity);
