@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Dominio.Entities;
 
 namespace ApiIncidencias.Controllers;
+[ApiVersion("1.1")]
 [ApiVersion("1.0")]
 public class CategoriaController : BaseApiController{
     private readonly IUnitOfWork _UnitOfWork;
@@ -45,7 +46,8 @@ public class CategoriaController : BaseApiController{
     [MapToApiVersion("1.1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Pager<CategoriaDto>>> Get11([FromQuery] IParam param){
+    public async Task<ActionResult<Pager<CategoriaDto>>> Get11([FromQuery] Params conf){
+        var param = new Param(conf);
        var records = await _UnitOfWork.Categorias.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<CategoriaDto>>(records);
        IPager<CategoriaDto> pager = new Pager<CategoriaDto>(recordDtos,records.Count(),param) ;
@@ -65,15 +67,16 @@ public class CategoriaController : BaseApiController{
        return CreatedAtAction(nameof(Post),new {id= record.Id, recordDto});
     }
 
-    [HttpPut]
+    [HttpPut("{id}")]
     [MapToApiVersion("1.0")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<CategoriaDto>> Put([FromBody]CategoriaDto recordDto){
+    public async Task<ActionResult<CategoriaDto>> Put(int id, [FromBody]CategoriaDto recordDto){
        if(recordDto == null)
            return NotFound();
        var record = _Mapper.Map<Categoria>(recordDto);
+       record.Id = id;
        _UnitOfWork.Categorias.Update(record);
        await _UnitOfWork.SaveAsync();
        return recordDto;

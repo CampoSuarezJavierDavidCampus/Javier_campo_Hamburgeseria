@@ -1,6 +1,8 @@
+using System.Reflection;
 using API.Extensions;
 using API.Helpers;
 using API.Helpers.Errors;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Persistencia;
@@ -8,23 +10,13 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var logger = new LoggerConfiguration()
-                    .ReadFrom.Configuration(builder.Configuration)
-                    .Enrich.FromLogContext()
-                    .CreateLogger();
-
-//builder.Logging.ClearProviders();
-builder.Logging.AddSerilog(logger);
-/*
- el context accessor nos permite que podamos implementar la autorizacion de roles
-*/
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
 builder.Services.ConfigureRate();
 builder.Services.ConfigureVer();
-// Add services to the container.
 
-builder.Services.AddControllers(options =>
-{
+
+builder.Services.AddControllers(options =>{
 	options.RespectBrowserAcceptHeader = true;
 	options.ReturnHttpNotAcceptable = true;
 }).AddXmlSerializerFormatters();
@@ -33,7 +25,6 @@ builder.Services.AddValidationErrors();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.ConfigureCors();
 
 builder.Services.AddJwt(builder.Configuration);
@@ -53,7 +44,7 @@ builder.Services.AddDbContext<DbAppContext>(options =>
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionMiddleware>();
+//app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
@@ -83,6 +74,7 @@ app.UseApiVersioning();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseIpRateLimiting();
 
 app.MapControllers();
 

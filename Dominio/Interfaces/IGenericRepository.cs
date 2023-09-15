@@ -1,11 +1,9 @@
-
-
 using Dominio.Entities;
 
-namespace Dominio.Interfaces;
 using System.Linq.Expressions;
 using Dominio.Interfaces.Pager;
 
+namespace Dominio.Interfaces;
 public interface IGenericRepository<T> where T : BaseEntity{        
     Task<T> FindFirst(Expression<Func<T, bool>> expression);
     Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression = null, IParam param = null);

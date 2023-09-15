@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Dominio.Entities;
 
 namespace ApiIncidencias.Controllers;
+[ApiVersion("1.1")]
 [ApiVersion("1.0")]
 public class ChefController : BaseApiController{
     private readonly IUnitOfWork _UnitOfWork;
@@ -45,7 +46,8 @@ public class ChefController : BaseApiController{
     [MapToApiVersion("1.1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Pager<ChefDto>>> Get11([FromQuery] IParam param){
+    public async Task<ActionResult<Pager<ChefDto>>> Get11([FromQuery] Params conf){
+        var param = new Param(conf);
        var records = await _UnitOfWork.Chefs.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<ChefDto>>(records);
        IPager<ChefDto> pager = new Pager<ChefDto>(recordDtos,records.Count(),param) ;
@@ -65,15 +67,16 @@ public class ChefController : BaseApiController{
        return CreatedAtAction(nameof(Post),new {id= record.Id, recordDto});
     }
 
-    [HttpPut]
+    [HttpPut("{id}")]
     [MapToApiVersion("1.0")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ChefDto>> Put([FromBody]ChefDto recordDto){
+    public async Task<ActionResult<ChefDto>> Put(int id, [FromBody]ChefDto recordDto){
        if(recordDto == null)
            return NotFound();
        var record = _Mapper.Map<Chef>(recordDto);
+       record.Id = id;
        _UnitOfWork.Chefs.Update(record);
        await _UnitOfWork.SaveAsync();
        return recordDto;

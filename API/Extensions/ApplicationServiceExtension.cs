@@ -5,6 +5,7 @@ using API.Helpers.Errors;
 using API.Services;
 using Aplicacion.UnitOfWork;
 using AspNetCoreRateLimit;
+using AutoMapper;
 using Dominio.Entities;
 using Dominio.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,6 +33,7 @@ namespace API.Extensions
             services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IMapper, Mapper>();
             services.AddScoped<IAuthorizationHandler, GlobalVerbRoleHandler>();
         }
 

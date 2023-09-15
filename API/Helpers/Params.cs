@@ -2,7 +2,7 @@ using Dominio.Interfaces.Pager;
 
 namespace API.Helpers;
 
-public class Params: IParam{
+public class Params{
     private int _pageSize = 5;
     private const int MaxPageSize = 50;
     private int _pageIndex = 1;
@@ -20,5 +20,13 @@ public class Params: IParam{
     public string Search{
         get => _search;
         set => _search = (!String.IsNullOrEmpty(value)) ? value.ToLower() : "";
+    }
+}
+
+public class Param:Params, IParam{
+    public Param(Params param){
+        PageSize = param.PageSize;
+        PageIndex = param.PageSize;
+        Search = param.Search;
     }
 }

@@ -9,11 +9,13 @@ using Dominio.Entities;
 
 namespace ApiIncidencias.Controllers;
 [ApiVersion("1.0")]
-public class IngredientesController : BaseApiController{
+[ApiVersion("1.1")]
+
+public class IngredienteController : BaseApiController{
     private readonly IUnitOfWork _UnitOfWork;
     private readonly IMapper _Mapper;
 
-    public IngredientesController (IUnitOfWork unitOfWork,IMapper mapper){
+    public IngredienteController (IUnitOfWork unitOfWork,IMapper mapper){
         _UnitOfWork = unitOfWork;
         _Mapper = mapper;
     }
@@ -25,6 +27,17 @@ public class IngredientesController : BaseApiController{
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IEnumerable<IngredienteDto>> Get(){
        var records = await _UnitOfWork.Ingredientes.GetAllAsync();
+       return _Mapper.Map<List<IngredienteDto>>(records);
+    }
+
+    [HttpGet("menorStock")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IEnumerable<IngredienteDto>> MenorStock(){
+       var records = await _UnitOfWork.Ingredientes
+       .GetAllAsync(x => x.Stock < 400);
        return _Mapper.Map<List<IngredienteDto>>(records);
     }
 
@@ -45,7 +58,8 @@ public class IngredientesController : BaseApiController{
     [MapToApiVersion("1.1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Pager<IngredienteDto>>> Get11([FromQuery] IParam param){
+    public async Task<ActionResult<Pager<IngredienteDto>>> Get11([FromQuery] Params conf){
+        var param = new Param(conf);
        var records = await _UnitOfWork.Ingredientes.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<IngredienteDto>>(records);
        IPager<IngredienteDto> pager = new Pager<IngredienteDto>(recordDtos,records.Count(),param) ;
@@ -65,15 +79,16 @@ public class IngredientesController : BaseApiController{
        return CreatedAtAction(nameof(Post),new {id= record.Id, recordDto});
     }
 
-    [HttpPut]
+    [HttpPut("{id}")]
     [MapToApiVersion("1.0")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IngredienteDto>> Put([FromBody]IngredienteDto recordDto){
+    public async Task<ActionResult<IngredienteDto>> Put(int id, [FromBody]IngredienteDto recordDto){
        if(recordDto == null)
            return NotFound();
        var record = _Mapper.Map<Ingrediente>(recordDto);
+       record.Id = id;
        _UnitOfWork.Ingredientes.Update(record);
        await _UnitOfWork.SaveAsync();
        return recordDto;

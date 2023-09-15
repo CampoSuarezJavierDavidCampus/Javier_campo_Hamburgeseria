@@ -1,8 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Dominio.Entities;
-public class Hamburguesa: BaseEntity{
-    [Column("decimal(8,2)")]
+public class Hamburguesa: BaseEntity{    
     public decimal Precio { get; set; }
 
     public int IdCategoria { get; set; }

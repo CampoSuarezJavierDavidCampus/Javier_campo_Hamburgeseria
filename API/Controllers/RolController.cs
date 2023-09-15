@@ -9,6 +9,7 @@ using Dominio.Entities;
 
 namespace ApiIncidencias.Controllers;
 [ApiVersion("1.0")]
+[ApiVersion("1.1")]
 public class RolController : BaseApiController{
     private readonly IUnitOfWork _UnitOfWork;
     private readonly IMapper _Mapper;
@@ -45,7 +46,8 @@ public class RolController : BaseApiController{
     [MapToApiVersion("1.1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Pager<RolDto>>> Get11([FromQuery] IParam param){
+    public async Task<ActionResult<Pager<RolDto>>> Get11([FromQuery] Params conf){
+        var param = new Param(conf);
        var records = await _UnitOfWork.Roles.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<RolDto>>(records);
        IPager<RolDto> pager = new Pager<RolDto>(recordDtos,records.Count(),param) ;
@@ -65,15 +67,16 @@ public class RolController : BaseApiController{
        return CreatedAtAction(nameof(Post),new {id= record.Id, recordDto});
     }
 
-    [HttpPut]
+    [HttpPut("{id}")]
     [MapToApiVersion("1.0")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<RolDto>> Put([FromBody]RolDto recordDto){
+    public async Task<ActionResult<RolDto>> Put(int id, [FromBody]RolDto recordDto){
        if(recordDto == null)
            return NotFound();
        var record = _Mapper.Map<Rol>(recordDto);
+       record.Id = id;
        _UnitOfWork.Roles.Update(record);
        await _UnitOfWork.SaveAsync();
        return recordDto;
