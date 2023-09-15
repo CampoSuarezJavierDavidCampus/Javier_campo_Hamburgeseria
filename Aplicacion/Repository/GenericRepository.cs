@@ -1,11 +1,12 @@
 using System.Linq.Expressions;
 using Dominio.Entities;
+using Dominio.Interfaces.Pager;
 using Microsoft.EntityFrameworkCore;
 using Persistencia;
 
 namespace Aplicacion.Repository;
 
-public class GenericRepository<T> where T : BaseEntity{
+public abstract class  GenericRepository<T> where T : BaseEntity{
     private readonly DbAppContext _context;
     private readonly DbSet<T> _Entities;
     public GenericRepository(DbAppContext context){
@@ -26,26 +27,40 @@ public class GenericRepository<T> where T : BaseEntity{
     public virtual void Remove(T entity) => _Entities.Remove(entity);
     public virtual void RemoveRange(IEnumerable<T> entities)=> _Entities.RemoveRange(entities);
     public virtual void Update(T entity)=> _Entities.Update(entity);
-
-    public virtual async Task<(int totalRegistros, IEnumerable<T> registros)> GetAllAsync(int pageIndex, int pageSize, string _search)
-    {
-        var totalRegistros = await _context.Set<T>().CountAsync();
-        var registros = await _context.Set<T>()
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-        return (totalRegistros, registros);
+    public virtual async IAsyncEnumerable<T> GetAllAsync(IParam param = null){        
+        if (param !=null){
+            await foreach (
+                var item in _Entities
+                .Skip((param.PageIndex - 1) * param.PageSize)
+                .Take(param.PageSize)
+                .AsAsyncEnumerable()
+            ){
+                yield return item;
+            }
+        }else{
+            var records = _Entities;
+            await foreach (var record in records){
+                yield  return  record;
+            }
+        }        
     }
-    public virtual async IAsyncEnumerable<T> GetAllAsync(){
-        await foreach (var record in _Entities){
-            yield  return  record;
-        }
-    }
 
-    public virtual async IAsyncEnumerable<T> GetAllAsync(Expression<Func<T, bool>> expression){
-        var records = _Entities.Where(expression).AsAsyncEnumerable();
-        await foreach (var record in records){
-            yield return record;
+    public virtual async IAsyncEnumerable<T> GetAllAsync(Expression<Func<T, bool>> expression, IParam param = null){
+        if(param != null){           
+            await foreach (
+                var item in _Entities
+                .Where(expression)
+                .Skip((param.PageIndex - 1) * param.PageSize)
+                .Take(param.PageSize)
+                .AsAsyncEnumerable()
+            ){
+                yield return item;
+            } 
+        }else{            
+            await foreach (
+                var record in _Entities.Where(expression).AsAsyncEnumerable()){
+                yield return record;
+            }
         }
     }       
 

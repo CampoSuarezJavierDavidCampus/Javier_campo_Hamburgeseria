@@ -11,6 +11,6 @@ public class Hamburguesa: BaseEntity{
     public int IdChef { get; set; }
     public Chef Chef { get; set; }
 
-    public ICollection<Ingredientes> Ingredientes { get; set; } = new HashSet<Ingredientes>();
+    public ICollection<Ingrediente> Ingrediente { get; set; } = new HashSet<Ingrediente>();
     public ICollection<HamburguesaIngredientes> HamburguesaIngredientes { get; set; }
 }

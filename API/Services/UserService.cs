@@ -38,8 +38,7 @@ namespace API.Services
             usuario.Password = _passwordHasher.HashPassword(usuario, registerDto.Password);
 
             var usuarioExiste = _unitOfWork.Usuarios
-                                                .Find(u => u.Nombre.ToLower() == registerDto.Username.ToLower())
-                                                .FirstOrDefault();
+                                                .FindFirst(u => u.Nombre.ToLower() == registerDto.Username.ToLower());
 
             if (usuarioExiste == null)
             {
@@ -83,9 +82,7 @@ namespace API.Services
 
             if (resultado == PasswordVerificationResult.Success)
             {
-                var rolExiste = _unitOfWork.Roles
-                                                .Find(u => u.Nombre.ToLower() == model.Role.ToLower())
-                                                .FirstOrDefault();
+                var rolExiste = await _unitOfWork.Roles.FindFirst(u => u.Nombre.ToLower() == model.Role.ToLower());
 
                 if (rolExiste != null)
                 {

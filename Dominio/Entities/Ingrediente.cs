@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dominio.Entities;
-public class Ingredientes: BaseEntity{
+public class Ingrediente: BaseEntity{
     public string Descripcion { get; set; } = String.Empty;
     
     [Column("decimal(8,2)")]

@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Data.Configurations;
-public class IngredientesConfiguration : IEntityTypeConfiguration<Ingredientes>{
-    public void Configure(EntityTypeBuilder<Ingredientes> builder){
+public class IngredientesConfiguration : IEntityTypeConfiguration<Ingrediente>{
+    public void Configure(EntityTypeBuilder<Ingrediente> builder){
         builder.ToTable("ingredientes");
         builder.HasKey(x => x.Id);
 

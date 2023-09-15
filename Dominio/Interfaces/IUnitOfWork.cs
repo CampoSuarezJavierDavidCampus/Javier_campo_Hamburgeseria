@@ -3,9 +3,9 @@ public interface IUnitOfWork{
     ICategoriaRepository Categorias {get;}    
     IChefRepository Chefs {get;}
     IHamburguesaRepository Hamburguesas {get;}
-    IIngredientesRepository Ingredientes {get;}
+    IIngredienteRepository Ingredientes {get;}
     IRolRepository Roles {get;}
-    IUsuarioRepository Usuario {get;}
+    IUsuarioRepository Usuarios {get;}
     Task<int> SaveAsync();
 }
 

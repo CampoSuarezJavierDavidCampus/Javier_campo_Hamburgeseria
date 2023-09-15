@@ -1,26 +1,11 @@
-
-
-using System.Linq.Expressions;
+using Aplicacion.Repository;
 using Dominio.Entities;
 using Dominio.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Persistencia;
 
-namespace Aplicacion.Repository;
+namespace Application.Repositories;
+public sealed class UsuarioRepository : GenericRepository<Usuario>, IUsuarioRepository{
+    public UsuarioRepository(DbAppContext context) : base(context){}
 
-public class UsuarioRepository : GenericRepository<Usuario>, IUsuario
-{
-     private readonly DbAppContext _context;
-
-    public UsuarioRepository(DbAppContext context) : base(context)
-    {
-        _context = context;
-    }
-        public async Task<Usuario> GetByUsernameAsync(string username)
-    {
-        return await _context.Usuarios
-                            .Include(u=>u.Roles)
-                            .FirstOrDefaultAsync(u=>u.Nombre.ToLower()==username.ToLower());
-    }
-   
+    public async Task<Usuario> GetByUsernameAsync(string nombre)=> await FindFirst(x => x.Nombre == nombre);
 }

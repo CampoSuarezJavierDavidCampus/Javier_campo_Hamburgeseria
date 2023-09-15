@@ -39,20 +39,20 @@ public class HamburguesaConfiguration : IEntityTypeConfiguration<Hamburguesa>{
             .WithMany(x => x.Hamburguesas)
             .HasForeignKey(x => x.IdCategoria); 
 
-        builder.HasMany(p => p.Ingredientes)
+        builder.HasMany(p => p.Ingrediente)
             .WithMany(p => p.Hamburguesas)
             .UsingEntity<HamburguesaIngredientes>(
                 t => t.HasOne(j => j.Ingrediente)
                     .WithMany(j => j.HamburguesaIngredientes)
-                    .HasForeignKey(j => j.IdIngredientes),
+                    .HasForeignKey(j => j.IdIngrediente),
                 t => t.HasOne(j => j.Hamburguesa)
                     .WithMany(j => j.HamburguesaIngredientes)
                     .HasForeignKey(j => j.IdHamburguesa),
                 t => {//--Configurations
                     t.ToTable("hamburguesa_ingredientes");
-                    t.HasKey(j => new{j.IdIngredientes,j.IdHamburguesa});
+                    t.HasKey(j => new{j.IdIngrediente,j.IdHamburguesa});
 
-                    t.Property(t => t.IdIngredientes)
+                    t.Property(t => t.IdIngrediente)
                         .IsRequired()
                         .HasColumnName("ingrediente_id");
                     

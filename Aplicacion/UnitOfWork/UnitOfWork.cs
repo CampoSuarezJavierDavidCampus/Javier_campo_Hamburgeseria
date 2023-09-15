@@ -1,49 +1,33 @@
-
-
-using Aplicacion.Repository;
+using Application.Repositories;
 using Dominio.Interfaces;
 using Persistencia;
 
 namespace Aplicacion.UnitOfWork;
+public class UnitOfWork : IUnitOfWork, IDisposable{
+    ICategoriaRepository _Categorias;
+    IChefRepository _Chefs;
+    IHamburguesaRepository _Hamburguesas;
+    IIngredienteRepository _Ingredientes;
+    IRolRepository _Roles;
+    IUsuarioRepository _Usuario;
 
-public class UnitOfWork : IUnitOfWork, IDisposable
-{
-    RolRepository _rol;
-    UsuarioRepository _usuario;
-    private readonly DbAppContext _context;
-    public UnitOfWork(DbAppContext context)
-    {
-        _context = context;
-    }
-    public IUsuario Usuarios
-    {
-        get
-        {
-            if (_usuario is not null)
-            {
-                return _usuario;
-            }
-            return _usuario = new UsuarioRepository(_context);
-        }
-    }
-    public IRol Roles
-    {
-        get
-        {
-            if (_rol is not null)
-            {
-                return _rol;
-            }
-            return _rol = new RolRepository(_context);
-        }
-    }
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
-    public async Task<int> SaveAsync()
-    {
-        return await _context.SaveChangesAsync();
-    }
+    private readonly DbAppContext _Context;
+
+    public ICategoriaRepository Categorias => _Categorias ??= new CategoriaRepository(_Context);
+
+    public IChefRepository Chefs => _Chefs ??= new ChefRepository(_Context);
+
+    public IHamburguesaRepository Hamburguesas => _Hamburguesas ??= new HamburguesaRepository(_Context);
+
+    public IIngredienteRepository Ingredientes => _Ingredientes ??= new IngredienteRepository(_Context);
+
+    public IRolRepository Roles => _Roles ??= new RolRepository(_Context);
+
+    public IUsuarioRepository Usuarios => _Usuario ??= new UsuarioRepository(_Context);
+
+    public UnitOfWork(DbAppContext context)=> _Context = context;
+    
+    public void Dispose()=>_Context.Dispose();
+    public async Task<int> SaveAsync()=>await _Context.SaveChangesAsync();
 
 }
