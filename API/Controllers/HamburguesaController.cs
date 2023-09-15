@@ -46,8 +46,8 @@ public class HamburguesaController : BaseApiController{
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IEnumerable<HamburguesaSimpleDto>> Vegetariana(){
-       var records = await _UnitOfWork.Hamburguesas.GetAllAsync(x => x.Categoria.Descripcion == "Vegetariana");
-       return _Mapper.Map<List<HamburguesaSimpleDto>>(records);
+       var records = await _UnitOfWork.Hamburguesas.GetAllAsync(x => x.Categoria.Nombre.ToLower() == "vegetariana");
+       return _Mapper.Map<List<HamburguesaConTodoDto>>(records);
     }
 
     [HttpGet("{id}")]
@@ -61,6 +61,19 @@ public class HamburguesaController : BaseApiController{
            return NotFound();
        }
        return _Mapper.Map<HamburguesaSimpleDto>(record);
+    }
+
+    [HttpGet("chef/{nombre}")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<List<HamburguesaConTodoDto>>> ChefName(string nombre){
+       var record = await _UnitOfWork.Hamburguesas.GetAllAsync(x => x.Chef.Nombre.ToLower() == nombre.ToLower());
+       if (record == null){
+           return NotFound();
+       }
+       return _Mapper.Map<List<HamburguesaConTodoDto>>(record);
     }
 
     [HttpGet]

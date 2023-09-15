@@ -20,6 +20,7 @@ public sealed class HamburguesaRepository : GenericRepository<Hamburguesa>, IHam
         }
         return await _Entities
                 .Include(x => x.Chef)
+                .Include(x => x.Ingrediente)
                 .Include(x => x.Categoria)
                 .ToListAsync();
     }

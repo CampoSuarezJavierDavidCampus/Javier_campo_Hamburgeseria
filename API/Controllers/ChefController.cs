@@ -29,6 +29,16 @@ public class ChefController : BaseApiController{
        return _Mapper.Map<List<ChefDto>>(records);
     }
 
+    [HttpGet("Carnes")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IEnumerable<ChefDto>> Carnes(){
+       var records = await _UnitOfWork.Chefs.GetAllAsync(x => x.Especialidad.ToLower() == "carnes");
+       return _Mapper.Map<List<ChefDto>>(records);
+    }
+
     [HttpGet("{id}")]
     //[Authorize]
     [MapToApiVersion("1.0")]
