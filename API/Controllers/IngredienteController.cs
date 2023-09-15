@@ -30,6 +30,26 @@ public class IngredienteController : BaseApiController{
        return _Mapper.Map<List<IngredienteDto>>(records);
     }
 
+    [HttpGet("precio2o5Mil")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IEnumerable<IngredienteDto>> Precio(){
+       var records = await _UnitOfWork.Ingredientes.GetAllAsync(x=> x.Precio <= 5000 && x.Precio >= 2000);
+       return _Mapper.Map<List<IngredienteDto>>(records);
+    }
+
+    [HttpGet("mascaro")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IngredienteDto> MasCaro(){
+       var records = (await _UnitOfWork.Ingredientes.GetAllAsync()).MaxBy(x => x.Precio);
+       return _Mapper.Map<IngredienteDto>(records);
+    }
+
     [HttpGet("menorStock")]
     //[Authorize]
     [MapToApiVersion("1.0")]
@@ -63,7 +83,7 @@ public class IngredienteController : BaseApiController{
        var records = await _UnitOfWork.Ingredientes.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<IngredienteDto>>(records);
        IPager<IngredienteDto> pager = new Pager<IngredienteDto>(recordDtos,records.Count(),param) ;
-        return CreatedAtAction("Ingredientes",pager);
+         return Ok(pager);
     }
 
     [HttpPost]

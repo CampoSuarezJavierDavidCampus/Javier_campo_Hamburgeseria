@@ -61,7 +61,7 @@ public class ChefController : BaseApiController{
        var records = await _UnitOfWork.Chefs.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<ChefDto>>(records);
        IPager<ChefDto> pager = new Pager<ChefDto>(recordDtos,records.Count(),param) ;
-        return CreatedAtAction("Chefs",pager);
+         return Ok(pager);
     }
 
     [HttpPost]

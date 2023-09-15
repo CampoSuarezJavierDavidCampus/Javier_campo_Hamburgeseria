@@ -6,6 +6,7 @@ using Dominio.Interfaces;
 using Dominio.Interfaces.Pager;
 using Microsoft.AspNetCore.Mvc;
 using Dominio.Entities;
+using API.Dtos.Hamburguesa;
 
 namespace ApiIncidencias.Controllers;
 [ApiVersion("1.0")]
@@ -35,8 +36,18 @@ public class HamburguesaController : BaseApiController{
     [MapToApiVersion("1.0")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IEnumerable<HamburguesaSimpleDto>> HamburguesaConTodo(){
+    public async Task<IEnumerable<HamburguesaConTodoDto>> HamburguesaConTodo(){
        var records = await _UnitOfWork.Hamburguesas.GetAllAsync();
+       return _Mapper.Map<List<HamburguesaConTodoDto>>(records);
+    }
+
+    [HttpGet("OdenadaPorPrecio")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IEnumerable<HamburguesaConTodoDto>> PorPrecio(){
+       var records = (await _UnitOfWork.Hamburguesas.GetAllAsync()).OrderByDescending(x => x.Precio);
        return _Mapper.Map<List<HamburguesaConTodoDto>>(records);
     }
 
@@ -45,7 +56,7 @@ public class HamburguesaController : BaseApiController{
     [MapToApiVersion("1.0")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IEnumerable<HamburguesaSimpleDto>> Vegetariana(){
+    public async Task<IEnumerable<HamburguesaConTodoDto>> Vegetariana(){
        var records = await _UnitOfWork.Hamburguesas.GetAllAsync(x => x.Categoria.Nombre.ToLower() == "vegetariana");
        return _Mapper.Map<List<HamburguesaConTodoDto>>(records);
     }
@@ -76,16 +87,31 @@ public class HamburguesaController : BaseApiController{
        return _Mapper.Map<List<HamburguesaConTodoDto>>(record);
     }
 
+    [HttpGet("precio")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<List<HamburguesaConTodoDto>>> Precio(){
+       var record = await _UnitOfWork.Hamburguesas.GetAllAsync(x => x.Precio <= 9000);
+       if (record == null){
+           return NotFound();
+       }
+       return _Mapper.Map<List<HamburguesaConTodoDto>>(record);
+    }
+
     [HttpGet]
     [MapToApiVersion("1.1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Pager<HamburguesaSimpleDto>>> Get11([FromQuery] Params conf){
+    public async Task<ActionResult<Pager<HamburguesaSimpleDto>>> Get11([FromQuery] Params conf ){
         var param = new Param(conf);
        var records = await _UnitOfWork.Hamburguesas.GetAllAsync(null,param);
+       Console.WriteLine(records.Count());
        var recordDtos = _Mapper.Map<List<HamburguesaSimpleDto>>(records);
        IPager<HamburguesaSimpleDto> pager = new Pager<HamburguesaSimpleDto>(recordDtos,records.Count(),param) ;
-        return CreatedAtAction("Hamburguesas",pager);
+        
+        return Ok(pager);
     }
 
     [HttpPost]
@@ -101,30 +127,22 @@ public class HamburguesaController : BaseApiController{
        return CreatedAtAction(nameof(Post),new {id= record.Id, recordDto});
     }
 
-    [HttpPost("Categoria/{id}")]
+    [HttpPost("ingrediente/add")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<HamburguesaSimpleDto>> Post(int id, CategoriaDto categoria){
-       Hamburguesa hamburguesa = await _UnitOfWork.Hamburguesas.GetByIdAsync(id);
-       if(hamburguesa is null){
-        return BadRequest("no se encontro la hamburguesa");
-       }
-       hamburguesa.Categoria = _Mapper.Map<Categoria>(categoria);
-       await _UnitOfWork.SaveAsync();
-       return Ok($"la hamburguesa ${hamburguesa.Nombre} ahora pertenece a la categoria ${categoria.Nombre}");
-    }
+    public async Task<ActionResult> Post(HamburguesaAddIngrediente HI_IDs){
 
-    [HttpPost("Categoria/{id}")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<HamburguesaSimpleDto>> Post(int id, ChefDto chef){
-       Hamburguesa hamburguesa = await _UnitOfWork.Hamburguesas.GetByIdAsync(id);
+       Hamburguesa hamburguesa = await _UnitOfWork.Hamburguesas.GetByIdAsync(HI_IDs.IdHamburguesa);
+       Ingrediente ingrediente = await _UnitOfWork.Ingredientes.GetByIdAsync(HI_IDs.IdIngrediente);
        if(hamburguesa is null){
         return BadRequest("no se encontro la hamburguesa");
+       }else if(ingrediente is null){
+        return BadRequest("no se encontro el ingrediente");
        }
-       hamburguesa.Chef = _Mapper.Map<Chef>(chef);
+       hamburguesa.Ingrediente.Add(ingrediente);
+       _UnitOfWork.Hamburguesas.Update(hamburguesa);
        await _UnitOfWork.SaveAsync();
-       return Ok($"la hamburguesa ${hamburguesa.Nombre} ahora pertenece a la chef ${chef.Nombre}");
+       return Ok($"se agrego {ingrediente.Nombre} a la hamburguesa {hamburguesa.Nombre}");
     }
 
     [HttpPut("{id}")]

@@ -29,6 +29,16 @@ public class CategoriaController : BaseApiController{
        return _Mapper.Map<List<CategoriaDto>>(records);
     }
 
+    [HttpGet("gourmet")]
+    //[Authorize]
+    [MapToApiVersion("1.0")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IEnumerable<CategoriaDto>> GetGourmet(){
+       var records = await _UnitOfWork.Categorias.GetAllAsync(x => x.Descripcion.ToLower().Contains("gourmet"));
+       return _Mapper.Map<List<CategoriaDto>>(records);
+    }
+
     [HttpGet("{id}")]
     //[Authorize]
     [MapToApiVersion("1.0")]
@@ -51,7 +61,8 @@ public class CategoriaController : BaseApiController{
        var records = await _UnitOfWork.Categorias.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<CategoriaDto>>(records);
        IPager<CategoriaDto> pager = new Pager<CategoriaDto>(recordDtos,records.Count(),param) ;
-        return CreatedAtAction("Categorias",pager);
+         return Ok(pager);
+
     }
 
     [HttpPost]

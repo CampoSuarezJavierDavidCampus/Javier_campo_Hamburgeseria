@@ -42,9 +42,9 @@ public abstract class  GenericRepository<T> where T : BaseEntity{
         return await _Entities.ToListAsync();
     }
 
-    private async Task<IEnumerable<T>> GetAllPaginated(IParam param, Expression<Func<T, bool>> expression = null ){
-        return (await GetAll(expression))
-                .Where(x => x.Nombre == param.Search)                
+    private async Task<IEnumerable<T>> GetAllPaginated(IParam param, Expression<Func<T, bool>> expression = null ){        
+        return (await GetAll(expression))                                
+                .Where(x => x.Nombre.Trim().ToLower().StartsWith(param.Search.Trim().ToLower()) )                
                 .Skip((param.PageIndex - 1) * param.PageSize)
                 .Take(param.PageSize)
                 .ToList();

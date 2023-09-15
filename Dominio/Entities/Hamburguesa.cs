@@ -1,6 +1,6 @@
 namespace Dominio.Entities;
 public class Hamburguesa: BaseEntity{    
-    public decimal Precio { get; set; }
+    public double Precio { get; set; }
 
     public int IdCategoria { get; set; }
     public Categoria Categoria { get; set; }

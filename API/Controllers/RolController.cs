@@ -51,7 +51,7 @@ public class RolController : BaseApiController{
        var records = await _UnitOfWork.Roles.GetAllAsync(null,param);
        var recordDtos = _Mapper.Map<List<RolDto>>(records);
        IPager<RolDto> pager = new Pager<RolDto>(recordDtos,records.Count(),param) ;
-        return CreatedAtAction("Roles",pager);
+         return Ok(pager);
     }
 
     [HttpPost]
