@@ -19,6 +19,8 @@ builder.Logging.AddSerilog(logger);
  el context accessor nos permite que podamos implementar la autorizacion de roles
 */
 builder.Services.AddHttpContextAccessor();
+builder.Services.ConfigureRate();
+builder.Services.ConfigureVer();
 // Add services to the container.
 
 builder.Services.AddControllers(options =>
@@ -77,7 +79,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 app.UseCors("CorsPolicy");
-
+app.UseApiVersioning();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
