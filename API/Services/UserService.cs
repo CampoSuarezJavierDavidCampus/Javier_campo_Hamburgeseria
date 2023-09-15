@@ -31,14 +31,14 @@ namespace API.Services
             var usuario = new Usuario
             {
                 Email = registerDto.Email,
-                Username = registerDto.Username,
+                Nombre = registerDto.Username,
 
             };
 
             usuario.Password = _passwordHasher.HashPassword(usuario, registerDto.Password);
 
             var usuarioExiste = _unitOfWork.Usuarios
-                                                .Find(u => u.Username.ToLower() == registerDto.Username.ToLower())
+                                                .Find(u => u.Nombre.ToLower() == registerDto.Username.ToLower())
                                                 .FirstOrDefault();
 
             if (usuarioExiste == null)
@@ -105,7 +105,7 @@ namespace API.Services
                 return $"Rol {model.Role} no encontrado.";
             }
 
-            return $"Credenciales incorrectas para el ususario {usuario.Username}.";
+            return $"Credenciales incorrectas para el ususario {usuario.Nombre}.";
         }
         public async Task<DatosUsuarioDto> GetTokenAsync(LoginDto model)
         {
@@ -129,7 +129,7 @@ namespace API.Services
                 {
                     JwtSecurityToken jwtSecurityToken = CreateJwtToken(usuario);
                     datosUsuarioDto.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-                    datosUsuarioDto.UserName = usuario.Username;
+                    datosUsuarioDto.UserName = usuario.Nombre;
                     datosUsuarioDto.Email = usuario.Email;
                     datosUsuarioDto.Roles = usuario.Roles
                                                         .Select(p => p.Nombre)
@@ -141,14 +141,14 @@ namespace API.Services
                 else
                 {
                     datosUsuarioDto.EstaAutenticado = false;
-                    datosUsuarioDto.Mensaje = $"Credenciales incorrectas para el usuario {usuario.Username}.";
+                    datosUsuarioDto.Mensaje = $"Credenciales incorrectas para el usuario {usuario.Nombre}.";
 
                     return datosUsuarioDto;
                 }
             }
 
             datosUsuarioDto.EstaAutenticado = false;
-            datosUsuarioDto.Mensaje = $"Credenciales incorrectas para el usuario {usuario.Username}.";
+            datosUsuarioDto.Mensaje = $"Credenciales incorrectas para el usuario {usuario.Nombre}.";
 
             return datosUsuarioDto;
 
@@ -170,7 +170,7 @@ namespace API.Services
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, usuario.Username),
+                new Claim(JwtRegisteredClaimNames.Sub, usuario.Nombre),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("uid", usuario.Id.ToString())
             }

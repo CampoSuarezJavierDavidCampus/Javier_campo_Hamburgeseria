@@ -20,7 +20,7 @@ public class UsuarioRepository : GenericRepository<Usuario>, IUsuario
     {
         return await _context.Usuarios
                             .Include(u=>u.Roles)
-                            .FirstOrDefaultAsync(u=>u.Username.ToLower()==username.ToLower());
+                            .FirstOrDefaultAsync(u=>u.Nombre.ToLower()==username.ToLower());
     }
    
 }
